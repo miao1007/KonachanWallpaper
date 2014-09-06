@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MyActivity" >
+    <item android:id="@+id/menu_search"
+        android:title="Search"
+        android:showAsAction="always"
+        android:actionViewClass="android.widget.SearchView"  />
+    <group android:id="@+id/group">
+        <item android:id="@+id/menu_about"
+            android:showAsAction="ifRoom"
+            android:title="about"/>
+
+    </group>
+</menu>

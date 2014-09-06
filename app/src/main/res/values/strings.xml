@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">壁纸抓取器</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="no_found">- ( ゜- ゜)つ 没有找到啦</string>
+    <string name="edittext_hind">eg:catgirl</string>
+    <string name="toast_wait">ちょっとお待ちください,ご主人様</string>
+    <!-- Search -->
+    <string name="search_label">search_label</string>
+    <string name="search_hint">eg: yosuga_no_sora</string>
+    <string name="title_activity_gallery">GalleryActivity</string>
+
+</resources>
