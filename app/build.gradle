@@ -21,12 +21,13 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    //abslistview动画库
+    //special thanks those who devoted thier time to open source project
+    //abslistview anmation library
     compile 'com.nhaarman.listviewanimations:lib-core:3.1.0@aar'
     compile 'com.nhaarman.listviewanimations:lib-manipulation:3.1.0@aar'
     compile 'com.nhaarman.listviewanimations:lib-core-slh:3.1.0@aar'
     compile 'com.nineoldandroids:library:2.4.0'
-    //自适应gridview
+    //a stagged gridview
     compile 'com.etsy.android.grid:library:1.0.5'
     //parse json utils
     compile 'com.squareup.retrofit:retrofit:1.6.1'
