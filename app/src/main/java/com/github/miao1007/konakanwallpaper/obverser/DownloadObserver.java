@@ -1,55 +1,45 @@
-/*
- * Copyright (c) 2014 Miao1007
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.github.miao1007.konakanwallpaper.obverser;
 
+import android.app.DownloadManager;
+import android.content.Context;
 import android.database.ContentObserver;
-import android.net.Uri;
+import android.database.Cursor;
 import android.os.Handler;
 import android.util.Log;
 
 /**
- * Created by leon on 14-9-6.
+ * Created by leon on 14-9-8.
  */
-public class DownloadObserver extends ContentObserver
-{
-    private long mAppDownloadId = 0;
+public class DownloadObserver extends ContentObserver {
+    private long downid;
     private Handler handler;
-    Uri downloadsContentUri = Uri.parse("content://konakan/" + mAppDownloadId);
+    private Context context;
 
-    public DownloadObserver(Handler handler)
-    {
+    public DownloadObserver(Handler handler, Context context, long downid) {
         super(handler);
         this.handler = handler;
+        this.downid = downid;
+        this.context = context;
     }
-
-    public DownloadObserver(long appDownloadId, Handler handler)
-    {
-        super(handler);
-        this.handler = handler;
-        mAppDownloadId = appDownloadId;
-    }
-
 
     @Override
-    public void onChange(boolean selfChange)
-    {
+    public void onChange(boolean selfChange) {
+        //每当/data/data/com.android.providers.download/database/database.db变化后，触发onCHANGE，开始具体查询
+        Log.w("onChangeID", String.valueOf(downid));
         super.onChange(selfChange);
-        // Do some work on this row with the id
-        Log.w("Download","onchange");
-
+        //实例化查询类，这里需要一个刚刚的downid
+        DownloadManager.Query query = new DownloadManager.Query().setFilterById(downid);
+        DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+        //这个就是数据库查询啦
+        Cursor cursor = downloadManager.query(query);
+        while (cursor.moveToNext()) {
+            int mDownload_so_far = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+            int mDownload_all = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+            int mProgress = (mDownload_so_far * 99) / mDownload_all;
+            Log.w(getClass().getSimpleName(), String.valueOf(mProgress));
+            //TODO：handler.sendMessage(xxxx),这样就可以更新UI了
+            
+        }
+        cursor.close();
     }
 }
