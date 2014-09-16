@@ -36,4 +36,5 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.0.0'
     //download images utils
     compile 'com.squareup.picasso:picasso:2.3.4'
+    compile 'com.android.support:support-v4:20.0.0'
 }

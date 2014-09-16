@@ -12,7 +12,16 @@ public class Image implements Serializable{
     private static final long serialVersionUID = -7060210544600464481L;
 
     //Download Percent
-    int downLoadProgress = 0;
+    private int downLoadProgress = 0;
+    private long mDownloadID = 0;
+
+    public long getmDownloadID() {
+        return mDownloadID;
+    }
+
+    public void setmDownloadID(long mDownloadID) {
+        this.mDownloadID = mDownloadID;
+    }
 
     public int getDownLoadProgress() {
         return downLoadProgress;

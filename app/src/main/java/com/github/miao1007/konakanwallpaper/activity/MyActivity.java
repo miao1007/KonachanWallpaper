@@ -18,21 +18,19 @@ package com.github.miao1007.konakanwallpaper.activity;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.DownloadManager;
 import android.app.SearchManager;
 import android.content.Context;
-import android.net.Uri;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -46,13 +44,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MyActivity extends Activity  {
+public class MyActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener {
     //adapter
     MyAdaper adaper;
     StaggeredGridView gridView;
     List<Image> images = new ArrayList<Image>();
-    ProgressBar progressBar;
-    int progress = 0;
+    SwipeRefreshLayout swipeRefreshLayout;
 
     //data
     int currentPage = 1;
@@ -75,9 +72,11 @@ public class MyActivity extends Activity  {
 
     //Initial View And Set Handler
     private void initialView() {
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        adaper = new MyAdaper(MyActivity.this, images);
-
+        adaper = new MyAdaper(MyActivity.this ,handler , images);
+        //PullToReresh : in android.support.v4
+        swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.activity_my_swiperefreshlayout);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeColors(Color.BLUE,Color.RED,Color.YELLOW,Color.GREEN);
         //Combined StaggeredGridView And Swing Animation
         gridView = (StaggeredGridView) findViewById(R.id.gridView);
         SwingBottomInAnimationAdapter swingBottomInAnimationAdapter = new SwingBottomInAnimationAdapter(adaper);
@@ -88,28 +87,11 @@ public class MyActivity extends Activity  {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 final int currentPosition = i;
+                final int firstVisible = gridView.getFirstVisiblePosition();
+                Log.w(getClass().getSimpleName(), String.valueOf(firstVisible));
+                Log.w(getClass().getSimpleName(), String.valueOf(currentPosition));
+                Log.w("Onclick", String.valueOf(currentPosition - firstVisible));
                 final Image image = images.get(currentPosition);
-                ProgressBar progressBar1 = (ProgressBar)view.findViewById(R.id.adapter_my_progressBar);
-                ImageView imageView = (ImageView)view.findViewById(R.id.imageView);
-                //imageView.setImageAlpha(50);
-                progressBar1.setVisibility(View.VISIBLE);
-                if (image.getDownLoadProgress() != 99){
-
-                    DownloadManager downloadManager = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
-                    DownloadManager.Request request = new DownloadManager.Request(Uri.parse(image.getFile_url()))
-                            .setDestinationInExternalPublicDir("Konachan", image.getTags() + ".jpeg")
-                            .setTitle("title")
-                            .setDescription("下载到SD卡啦")
-                            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                            .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI)
-                            .setMimeType("image/jpeg");
-                    final long downloadid = downloadManager.enqueue(request);
-
-
-                }else if (image.getDownLoadProgress() != 0){
-
-                }
-
                 //DialogWithChoice.createDialog(MyActivity.this, image);
                 Log.w("Dialog",
                         String.valueOf(image.getFile_size()) + "/" +
@@ -122,9 +104,10 @@ public class MyActivity extends Activity  {
             final String TAG = "RefreshGrid";
             private boolean isLastRow = false;
             private boolean isload = false;
+
             @Override
             public void onScrollStateChanged(AbsListView absListView, int i) {
-                if (isLastRow == true ) {
+                if (isLastRow == true) {
                     currentPage++;
                     loadDataInThread(LISTVIEW_LOAD, currentTAGS, String.valueOf(currentPage));
                 }
@@ -134,9 +117,9 @@ public class MyActivity extends Activity  {
             @Override
             public void onScroll(AbsListView absListView, int i, int i2, int i3) {
                 //i : recycled items , i2 : iems in visible , i3 : all items
-                Log.w("onScroll",i + "/" + i2 + "/" + i3);
-                if ((i3 - i2 - i) <= 20 ) {
-                    Log.w(TAG, "isLastRow Set True");
+                //Log.w("onScroll",i + "/" + i2 + "/" + i3);
+                if ((i3 - i2 - i) <= 20) {
+                    //Log.w(TAG, "isLastRow Set True");
                     isLastRow = true;
                 }
             }
@@ -147,7 +130,7 @@ public class MyActivity extends Activity  {
             @Override
             public void handleMessage(Message message) {
                 List<Image> tmpimages = (List<Image>) message.obj;
-                if (tmpimages.isEmpty()){
+                if (tmpimages.isEmpty()) {
                     Toast.makeText(MyActivity.this, getString(R.string.no_found), Toast.LENGTH_SHORT).show();
                 } else {
                     switch (message.what) {
@@ -156,33 +139,34 @@ public class MyActivity extends Activity  {
                             Log.w("Handle_UP", "imgs to add = " + Integer.toString(tmpimages.size()));
                             images.clear();
                             images.addAll(tmpimages);
-                            progressBar.setVisibility(View.INVISIBLE);
                             adaper.notifyDataSetChanged();
                             break;
                         //On Load More
                         case LISTVIEW_LOAD:
                             Log.w("Handle_DN", "imgs to add = " + Integer.toString(tmpimages.size()));
                             images.addAll(tmpimages);
-                            progressBar.setVisibility(View.INVISIBLE);
                             adaper.notifyDataSetChanged();
                             break;
                         case LISVIEW_DOWNLOAD:
+
                             adaper.notifyDataSetChanged();
-                            break;
-                    }
+                    break;
+                }
                 }
                 Log.w("Handle_FI", "all imgs now = " + Integer.toString(images.size()));
+                swipeRefreshLayout.setRefreshing(false);
             }
         };
     }
 
     public void loadDataInThread(final int LISTVIEW_STATE, final String tags, final String page) {
         //Toast.makeText(MyActivity.this, getString(R.string.toast_wait), Toast.LENGTH_SHORT).show();
+        swipeRefreshLayout.setRefreshing(true);
         new Thread() {
             @Override
             public void run() {
                 //这个消息对象会关联调用它的Handler对象
-                handler.sendMessage(handler.obtainMessage(LISTVIEW_STATE,DataUtils.getDate(tags,page)));
+                handler.sendMessage(handler.obtainMessage(LISTVIEW_STATE, DataUtils.getDate(tags, page)));
             }
         }.start();
     }
@@ -207,7 +191,7 @@ public class MyActivity extends Activity  {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
-                Log.w("Search","onQueryTextSubmit : "+ s);
+                Log.w("Search", "onQueryTextSubmit : " + s);
                 currentTAGS = s;
                 currentPage = 1;
                 loadDataInThread(LISTVIEW_REFRESH, currentTAGS, String.valueOf(currentPage));
@@ -218,8 +202,8 @@ public class MyActivity extends Activity  {
 
             @Override
             public boolean onQueryTextChange(String s) {
-                if (s.length() > 0 ){
-                    Log.w("Search","onQueryTextChange : "+ s);
+                if (s.length() > 0) {
+                    Log.w("Search", "onQueryTextChange : " + s);
                     //TODO: void showSearchTips(s)
 
                 }
@@ -237,9 +221,10 @@ public class MyActivity extends Activity  {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        switch (id){
-            case R.id.menu_search:return true;
-            case R.id.menu_about:{
+        switch (id) {
+            case R.id.menu_search:
+                return true;
+            case R.id.menu_about: {
                 break;
             }
         }
@@ -247,5 +232,9 @@ public class MyActivity extends Activity  {
     }
 
 
+    @Override
+    public void onRefresh() {
+        loadDataInThread(LISTVIEW_REFRESH,currentTAGS,"1");
+    }
 }
 

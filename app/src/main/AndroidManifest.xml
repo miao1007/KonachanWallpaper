@@ -31,8 +31,6 @@
             <intent-filter>
                 <!--监听下载完成的那一瞬间-->
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
-                <action android:name="DownloadManager.ACTION_NOTIFICATION_CLICKED"/>
-                <action android:name="DownloadManager.EXTRA_NOTIFICATION_CLICK_DOWNLOAD_IDS"/>
             </intent-filter>
         </receiver>
 

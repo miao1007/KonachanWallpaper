@@ -29,26 +29,36 @@ import android.util.Log;
  * Created by leon on 14-9-5.
  */
 public class DownloadReceiver extends BroadcastReceiver {
-    DownloadManager downloadManager;
+    final static String MINETYPE = "image/jpeg";
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Bundle bundle = intent.getExtras();
         long downId = bundle.getLong(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
-        Log.w("Download",String.valueOf(downId));
-        downloadManager = (DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
+        Log.w(getClass().getSimpleName(),String.valueOf(downId));
+        DownloadManager downloadManager = (DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
         Uri filepath = downloadManager.getUriForDownloadedFile(downId);
-        Log.w("Download",filepath.toString());
-        //start the activity in new task
-        Intent activityIntent = new Intent(Intent.ACTION_VIEW);
-        String mimetype = "image/jpeg";
-        activityIntent.setDataAndType(filepath, mimetype);
-        activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        try {
-            context.startActivity(activityIntent);
-        } catch (ActivityNotFoundException ex) {
-            Log.d("Download", "no activity for " + mimetype, ex);
+        Log.w(getClass().getSimpleName(),filepath.toString());
+        if (intent.getAction() == DownloadManager.ACTION_DOWNLOAD_COMPLETE){
+            //start the activity in new task opening the picture
+            Intent activityIntent = new Intent(Intent.ACTION_VIEW);
+            activityIntent.setDataAndType(filepath, MINETYPE);
+            activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try {
+                context.startActivity(activityIntent);
+            } catch (ActivityNotFoundException ex) {
+                Log.d(getClass().getName(), "no activity for " + MINETYPE, ex);
+            }
+        } else if (intent.getAction().equals(DownloadManager.ACTION_NOTIFICATION_CLICKED)){
+            try {
+                Intent dm = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
+                dm.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(dm);
+            } catch (ActivityNotFoundException ex){
+                Log.d(getClass().getName(), "no activity for " + MINETYPE, ex);
+            }
         }
+
     }
 
 }

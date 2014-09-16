@@ -16,29 +16,19 @@
 
 package com.github.miao1007.konakanwallpaper.utils;
 
+import android.app.DownloadManager;
 import android.content.Context;
+import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Environment;
-import android.util.Log;
 
 import com.github.miao1007.konakanwallpaper.model.Image;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Created by leon on 14-9-4.
  */
 public class DownloadTask extends AsyncTask<Image, Integer, Boolean> {
     private Context context;
+
     public DownloadTask(Context context) {
         this.context = context;
     }
@@ -46,68 +36,79 @@ public class DownloadTask extends AsyncTask<Image, Integer, Boolean> {
 
     @Override
     protected Boolean doInBackground(Image... image) {
-        final OkHttpClient client = new OkHttpClient();
-        final String image_url = image[0].getFile_url();
-        final int bufferSize = 102400;
+//        final OkHttpClient client = new OkHttpClient();
+//        final String image_url = image[0].getFile_url();
+//        final int bufferSize = 102400;
+//        try {
+//
+//            final File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), image[0].getTags() + ".jpg");
+//
+//
+//            final Request request = new Request.Builder()
+//                    .url(image_url)
+//                    .build();
+//            int progress = 0;
+//            for (int i = 0; i < 10; i++) {
+//                progress = i;
+//                publishProgress(i);
+//                Thread.sleep(100);
+//            }
+//
+//            client.newCall(request).enqueue(new Callback() {
+//
+//                @Override
+//                public void onFailure(Request request, IOException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                @Override public void onResponse(Response response) throws IOException {
+//
+//                    Log.w("okhttp","Start Download");
+//                    InputStream inputStream = response.body().byteStream();
+//                    FileOutputStream outputStream = new FileOutputStream(file);
+//
+//
+//                    //缓冲文件输入流
+//                    BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+//                    //缓冲文件输出流
+//                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
+//
+//                    int i = 0;
+//                    //缓冲区的大小
+//                    byte[] buffer = new byte[bufferSize];
+//
+//                    while(true) {
+//                        if(bufferedInputStream.available() < bufferSize) {
+//                            Log.w("okhttp","pprogressI" + inputStream.available());
+//                            while((i = bufferedInputStream.read()) != -1) {
+//                                bufferedOutputStream.write(i);
+//                            }
+//                            break;
+//                        } else {
+//                            Log.w("okhttp","pprogressInput/" + inputStream.available());
+//                            Log.w("okhttp", "pprogressBuff/" + bufferedInputStream.available());
+//                            bufferedInputStream.read(buffer);
+//                            bufferedOutputStream.write(buffer);
+//                        }
+//                    }
+//                    bufferedOutputStream.flush();
+//                    bufferedInputStream.close();
+//                    bufferedOutputStream.close();
+//                    Log.w("okhttp","DownloadDone");
+//                }
+//            });
         try {
-
-            final File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), image[0].getTags() + ".jpg");
-
-
-            final Request request = new Request.Builder()
-                    .url(image_url)
-                    .build();
-            int progress = 0;
-            for (int i = 0; i < 10; i++) {
-                progress = i;
-                publishProgress(i);
-                Thread.sleep(100);
-            }
-
-            client.newCall(request).enqueue(new Callback() {
-
-                @Override
-                public void onFailure(Request request, IOException e) {
-                    e.printStackTrace();
-                }
-
-                @Override public void onResponse(Response response) throws IOException {
-
-                    Log.w("okhttp","Start Download");
-                    InputStream inputStream = response.body().byteStream();
-                    FileOutputStream outputStream = new FileOutputStream(file);
-
-
-                    //缓冲文件输入流
-                    BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
-                    //缓冲文件输出流
-                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
-
-                    int i = 0;
-                    //缓冲区的大小
-                    byte[] buffer = new byte[bufferSize];
-
-                    while(true) {
-                        if(bufferedInputStream.available() < bufferSize) {
-                            Log.w("okhttp","pprogressI" + inputStream.available());
-                            while((i = bufferedInputStream.read()) != -1) {
-                                bufferedOutputStream.write(i);
-                            }
-                            break;
-                        } else {
-                            Log.w("okhttp","pprogressInput/" + inputStream.available());
-                            Log.w("okhttp", "pprogressBuff/" + bufferedInputStream.available());
-                            bufferedInputStream.read(buffer);
-                            bufferedOutputStream.write(buffer);
-                        }
-                    }
-                    bufferedOutputStream.flush();
-                    bufferedInputStream.close();
-                    bufferedOutputStream.close();
-                    Log.w("okhttp","DownloadDone");
-                }
-            });
-
+            DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(image[0].getFile_url()))
+                    .setDestinationInExternalPublicDir("Konachan", image[0].getTags() + ".jpeg")
+                    .setTitle(image[0].getTags())
+                    .setDescription("下载到SD卡啦")
+                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                    .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI)
+                    .setMimeType("image/jpeg");
+            long downid = downloadManager.enqueue(request);
+            //register Content Observer
+//            context.getContentResolver().registerContentObserver(Uri.parse("content://downloads/"), true, new DownloadObserver(handler, context, downid, holder.progressBar));
 
             return true;
 
