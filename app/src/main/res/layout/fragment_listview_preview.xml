@@ -1,0 +1,13 @@
+<view
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_my_swiperefreshlayout"
+    class="android.support.v4.widget.SwipeRefreshLayout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <view xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/gridView"
+        class="com.etsy.android.grid.StaggeredGridView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"></view>
+</view>

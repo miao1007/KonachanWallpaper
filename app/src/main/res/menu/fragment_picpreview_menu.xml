@@ -5,10 +5,8 @@
         android:title="Search"
         android:showAsAction="always"
         android:actionViewClass="android.widget.SearchView"  />
-    <group android:id="@+id/group">
-        <item android:id="@+id/menu_about"
-            android:showAsAction="ifRoom"
-            android:title="about"/>
-
-    </group>
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
 </menu>
