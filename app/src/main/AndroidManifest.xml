@@ -16,7 +16,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- SearchBar -->
+            <!-- SearchBar  -->
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -34,10 +34,7 @@
             </intent-filter>
         </receiver>
 
-        <activity
-            android:name=".GalleryActivity"
-            android:label="@string/title_activity_gallery" >
-        </activity>
+
     </application>
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
