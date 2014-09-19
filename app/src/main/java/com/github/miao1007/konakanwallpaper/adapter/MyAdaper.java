@@ -1,5 +1,7 @@
 package com.github.miao1007.konakanwallpaper.adapter;
 
+import android.app.Activity;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,8 +12,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.github.miao1007.konakanwallpaper.activity.R;
+import com.github.miao1007.konakanwallpaper.fragment.DetailDialogFragment;
 import com.github.miao1007.konakanwallpaper.model.Image;
-import com.github.miao1007.konakanwallpaper.widget.DialogWithChoice;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -61,7 +63,7 @@ public class MyAdaper extends BaseAdapter {
         //int downLoadProgress = images.get(i).getDownLoadProgress();
         if (view == null) {
             holder = new ViewHolder();
-            view = LayoutInflater.from(context).inflate(R.layout.adaper_my, null);
+            view = LayoutInflater.from(context).inflate(R.layout.adaper_piclist, null);
             holder.imageView = (ImageView) view.findViewById(R.id.imageView);
             holder.progressBar = (ProgressBar) view.findViewById(R.id.adapter_my_progressBar);
             //holder.textView = (TextView)view.findViewById(R.id.textView);
@@ -88,8 +90,17 @@ public class MyAdaper extends BaseAdapter {
                 //holder.imageView.setImageResource(R.drawable.android_load_loading);
                 Log.w("Image", "Onclickimg");
                 Image image = images.get(currentPosition);
-                DialogWithChoice.createDialog(context,image);
+                //DialogWithChoice.createDialog(context,image);
+                DialogFragment newFragment = DetailDialogFragment.newInstance(image);
+                try{
+                    final Activity activity = (Activity) context;
 
+                    // Return the fragment manager
+                    newFragment.show(activity.getFragmentManager(),"dialog");
+
+                } catch (ClassCastException e) {
+                    Log.d(getClass().getSimpleName(), "Can't get the fragment manager with this");
+                }
             }
         });
         return view;

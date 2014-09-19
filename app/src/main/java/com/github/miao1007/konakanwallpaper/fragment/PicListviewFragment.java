@@ -16,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -91,7 +90,7 @@ public class PicListviewFragment extends Fragment implements SwipeRefreshLayout.
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.w(getClass().getSimpleName(),"onCreateView");
         super.onCreateView(inflater,container,savedInstanceState);
-        View view = inflater.inflate(R.layout.fragment_listview_preview, container ,false);
+        View view = inflater.inflate(R.layout.frag_piclist, container ,false);
         adaper = new MyAdaper(getActivity() , handler, images);
         //staggeredGridView.setAdapter(adaper);
         staggeredGridView = (StaggeredGridView)view.findViewById(R.id.gridView);
@@ -102,23 +101,6 @@ public class PicListviewFragment extends Fragment implements SwipeRefreshLayout.
         swipeRefreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.activity_my_swiperefreshlayout);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeColors(Color.BLUE,Color.RED,Color.YELLOW,Color.GREEN);
-        staggeredGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                final int currentPosition = i;
-                final int firstVisible = staggeredGridView.getFirstVisiblePosition();
-                Log.w(getClass().getSimpleName(), String.valueOf(firstVisible));
-                Log.w(getClass().getSimpleName(), String.valueOf(currentPosition));
-                Log.w("Onclick", String.valueOf(currentPosition - firstVisible));
-                final Image image = images.get(currentPosition);
-                //DialogWithChoice.createDialog(MyActivity.this, image);
-                Log.w("Dialog",
-                        String.valueOf(image.getFile_size()) + "/" +
-                                String.valueOf(image.getSample_file_size()) + "/" +
-                                String.valueOf(image.getJpeg_file_size()));
-            }
-        });
-
         staggeredGridView.setOnScrollListener(new AbsListView.OnScrollListener() {
             final String TAG = "RefreshGrid";
             private boolean isLastRow = false;
